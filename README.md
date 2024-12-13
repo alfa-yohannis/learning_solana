@@ -1,2 +1,2 @@
-# learning_solana
+# Learning Solana
 A Course for Learning Solana Blockchain
