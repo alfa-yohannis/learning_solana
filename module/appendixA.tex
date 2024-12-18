@@ -1,0 +1,32 @@
+\chapter{Appendix A}
+
+
+\section{Ekstraksi Audio dari Video Menggunakan FFmpeg}
+
+FFmpeg merupakan alat baris perintah yang digunakan untuk memproses video dan audio. Salah satu fungsinya adalah mengekstrak audio dari file video tanpa mengubah format audio aslinya. Berikut merupakan penjelasan perintah berikut:
+
+\begin{lstlisting}[language=bash]
+	ffmpeg -i "1. Local development setup.mp4" -vn -acodec copy output-audio.aac
+\end{lstlisting}
+
+\subsection{Penjelasan Perintah}
+\begin{itemize}
+	\item \texttt{ffmpeg}: Memanggil aplikasi FFmpeg.
+	\item \texttt{-i "1. Local development setup.mp4"}: Menentukan file input berupa video dengan nama \texttt{"1. Local development setup.mp4"}.
+	\item \texttt{-vn}: Menonaktifkan pengolahan video, memastikan hanya audio yang diproses.
+	\item \texttt{-acodec copy}: Menyalin codec audio tanpa proses re-encoding, sehingga kualitas audio tetap terjaga.
+	\item \texttt{output-audio.aac}: Nama file hasil ekstraksi audio dalam format AAC.
+\end{itemize}
+
+\subsection{Langkah-Langkah Ekstraksi Audio}
+\begin{enumerate}
+	\item Pastikan FFmpeg telah terinstal pada sistem dan periksa instalasi dengan perintah:
+	\begin{lstlisting}[language=bash]
+		ffmpeg -version
+	\end{lstlisting}
+	\item Jalankan perintah ekstraksi untuk mendapatkan audio dari file video.
+	\item File \texttt{output-audio.aac} akan dihasilkan di direktori kerja yang sama setelah proses selesai.
+\end{enumerate}
+
+\subsection{Manfaat}
+Proses ini memudahkan dalam memperoleh audio dari video, seperti untuk keperluan podcast, bahan pembelajaran, atau kebutuhan lain yang hanya memerlukan elemen audio.

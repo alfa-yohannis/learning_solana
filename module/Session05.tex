@@ -1,0 +1,75 @@
+\chapter{Membuat dan Mengelola Dompet File System di Solana}
+
+Pada bagian ini akan dijelaskan cara membuat dompet file system untuk Bob dan Alice menggunakan Solana CLI. Dompet ini berupa file pada mesin lokal yang dapat diakses untuk mengelola kunci publik dan kunci privat.
+
+\section{Membuat Folder untuk Dompet Solana}
+Langkah pertama adalah membuat sebuah folder di direktori \textit{home} untuk menyimpan dompet Solana. Perintah berikut digunakan untuk membuat folder baru:
+
+\begin{lstlisting}[language=bash]
+	mkdir ~/solana-wallets
+\end{lstlisting}
+
+Perintah di atas akan membuat folder bernama \texttt{solana-wallets} di direktori \textit{home}. Semua file dompet Solana untuk Bob dan Alice akan disimpan dalam folder ini.
+
+\section{Membuat Dompet untuk Bob dan Alice}
+Gunakan perintah \texttt{solana-keygen new} untuk membuat dompet. Contohnya, berikut adalah cara membuat dompet untuk Bob:
+
+\begin{lstlisting}[language=bash]
+	solana-keygen new --outfile ~/solana-wallets/bob.json
+\end{lstlisting}
+
+Perintah di atas akan menghasilkan sebuah file \texttt{bob.json} yang menyimpan kunci privat dan kunci publik milik Bob. Proses yang sama dapat dilakukan untuk Alice:
+
+\begin{lstlisting}[language=bash]
+	solana-keygen new --outfile ~/solana-wallets/alice.json
+\end{lstlisting}
+
+Setelah langkah ini, folder \texttt{solana-wallets} akan berisi dua file, \texttt{bob.json} dan \texttt{alice.json}, yang masing-masing mewakili dompet Bob dan Alice.
+
+\section{Menampilkan Kunci Publik}
+Untuk melihat kunci publik dari sebuah dompet, gunakan perintah berikut:
+
+\begin{lstlisting}[language=bash]
+	solana-keygen pubkey ~/solana-wallets/bob.json
+\end{lstlisting}
+
+Perintah di atas akan menampilkan kunci publik milik Bob. Untuk Alice, cukup ubah nama file menjadi \texttt{alice.json}. Kunci publik ini dapat digunakan untuk menerima token Solana.
+
+\section{Mengatur Dompet Default}
+Dompet default adalah dompet yang digunakan untuk menjalankan program dan transaksi. Dompet Alice dapat diatur sebagai default dengan perintah:
+
+\begin{lstlisting}[language=bash]
+	solana config set --keypair ~/solana-wallets/alice.json
+\end{lstlisting}
+
+Untuk memverifikasi alamat dompet default, gunakan perintah berikut:
+
+\begin{lstlisting}[language=bash]
+	solana address
+\end{lstlisting}
+
+Perintah ini akan menampilkan alamat kunci publik dari dompet default, dalam hal ini milik Alice.
+
+\section{Memeriksa Saldo Dompet}
+Saldo token Solana dalam dompet dapat diperiksa menggunakan perintah berikut:
+
+\begin{lstlisting}[language=bash]
+	solana balance
+\end{lstlisting}
+
+Karena ini adalah pengaturan lokal, token Solana yang digunakan bukanlah token asli. Jika saldo menunjukkan nol, maka perlu dilakukan \textit{airdrop} untuk menambahkan token.
+
+\section{Melakukan Airdrop Token}
+Gunakan perintah berikut untuk menambahkan token Solana ke dompet Alice:
+
+\begin{lstlisting}[language=bash]
+	solana airdrop 10
+\end{lstlisting}
+
+Perintah ini akan menambahkan 10 token ke dompet default. Untuk menambahkan token ke dompet Bob, tentukan kunci publiknya sebagai parameter:
+
+\begin{lstlisting}[language=bash]
+	solana airdrop 10 $(solana-keygen pubkey ~/solana-wallets/bob.json)
+\end{lstlisting}
+
+Setelah proses ini, saldo token di dompet dapat diperiksa ulang menggunakan perintah \texttt{solana balance}.

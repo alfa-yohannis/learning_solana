@@ -1,0 +1,170 @@
+\chapter{Membuat Program Solana untuk Menyimpan Data di Blockchain}
+
+Bab ini membahas cara menulis program Solana untuk menyimpan data tentang mata kuliah di blockchain. Data yang disimpan mencakup nama mata kuliah, gelar, institusi akademik, dan tanggal mulai mata kuliah. Program Solana ini menggunakan Program Derived Addresses (PDAs) untuk menyimpan data secara aman.
+
+\section{Konsep Program Derived Addresses (PDA)}
+PDA adalah alamat yang dihasilkan menggunakan algoritma kriptografi ED25519. PDA memiliki kunci publik tetapi tidak memiliki kunci privat. Hanya program asal yang dapat memodifikasi data dalam akun PDA dengan menyediakan \textit{seed} yang tepat. Program akan memverifikasi bahwa alamat PDA yang dihasilkan sesuai dengan alamat yang diberikan oleh klien.
+
+\section{Langkah-Langkah Eksekusi Program}
+Ketika program menerima panggilan dari klien, berikut langkah-langkah yang dieksekusi:
+\begin{enumerate}
+	\item Membaca data yang dikirim dengan instruksi.
+	\item Menghasilkan alamat PDA menggunakan \textit{seed} dan ID program.
+	\item Memverifikasi bahwa alamat PDA cocok dengan yang dikirim oleh klien.
+	\item Membuat akun PDA dengan menggunakan instruksi sistem.
+	\item Menyimpan data baru yang diserialisasi ke dalam akun PDA.
+\end{enumerate}
+
+\section{Persiapan Program}
+Instal \texttt{borsh} untuk membantu proses serialisasi dan deserialisasi data:
+
+\begin{lstlisting}[language=bash]
+	cargo add borsh --features derive
+\end{lstlisting}
+
+Referensi tambahan:
+\begin{itemize}
+	\item Program native Solana: \url{https://docs.solanalabs.com/runtime/programs}
+	\item Referensi ruang: \url{https://book.anchor-lang.com/anchor_references/space.html#space-reference}
+	\item Metode \texttt{create\_account}: \url{https://docs.rs/solana-program/latest/solana_program/system_instruction/fn.create_account.html}
+	\item Metode \texttt{invoke\_signed}: \url{https://docs.rs/solana-sdk/latest/solana_sdk/program/fn.invoke_signed.html}
+\end{itemize}
+
+\section{Struktur Program}
+Program ini akan dibagi menjadi dua file utama:
+\begin{itemize}
+	\item \texttt{lib.rs}: Berisi kerangka utama program dan memanggil komponen dari \texttt{misc.rs}.
+	\item \texttt{misc.rs}: Berisi struktur data, enum, dan fungsi pendukung.
+\end{itemize}
+
+\subsection{Struktur Data dan Enum di \texttt{misc.rs}}
+Kode berikut mendefinisikan struktur data \texttt{Course} dan enum \texttt{Instruction}:
+
+\begin{lstlisting}[language=Rust]
+	use borsh::{BorshDeserialize, BorshSerialize};
+	
+	#[derive(BorshSerialize, BorshDeserialize, Debug)]
+	pub struct Course {
+		pub name: String,
+		pub degree: String,
+		pub institution: String,
+		pub start_date: String,
+	}
+	
+	impl Course {
+		pub fn default() -> Self {
+			Self {
+				name: String::new(),
+				degree: String::new(),
+				institution: String::new(),
+				start_date: String::new(),
+			}
+		}
+	}
+\end{lstlisting}
+
+Penjelasan:
+\begin{itemize}
+	\item \texttt{Course}: Struktur ini digunakan untuk merepresentasikan data mata kuliah. Atributnya mencakup nama mata kuliah, gelar, institusi, dan tanggal mulai.
+	\item \texttt{BorshSerialize, BorshDeserialize}: Implementasi otomatis untuk serialisasi dan deserialisasi data menggunakan \texttt{borsh}.
+	\item \texttt{default}: Metode untuk menginisialisasi objek \texttt{Course} dengan nilai kosong.
+\end{itemize}
+
+Kode berikut mendefinisikan enum \texttt{Instruction} untuk menentukan jenis instruksi yang diterima program:
+
+\begin{lstlisting}[language=Rust]
+	pub enum Instruction {
+		AddCourse(Course),
+	}
+	
+	impl Instruction {
+		pub fn unpack(input: &[u8]) -> Result<Self, &'static str> {
+			let (variant, rest) = input.split_first().ok_or("Invalid instruction data")?;
+			match variant {
+				0 => Ok(Instruction::AddCourse(Course::try_from_slice(rest)?)),
+				_ => Err("Invalid instruction variant"),
+			}
+		}
+	}
+\end{lstlisting}
+
+Penjelasan:
+\begin{itemize}
+	\item \texttt{Instruction}: Enum yang mendukung berbagai jenis instruksi. Saat ini hanya mendukung \texttt{AddCourse}.
+	\item \texttt{unpack}: Metode untuk memproses data byte menjadi enum \texttt{Instruction}. Byte pertama menentukan jenis instruksi, sementara sisanya berisi data.
+\end{itemize}
+
+\subsection{Implementasi di \texttt{lib.rs}}
+Kode berikut adalah kerangka utama program di \texttt{lib.rs}:
+
+\begin{lstlisting}[language=Rust]
+	use solana_program::{
+		account_info::AccountInfo,
+		entrypoint,
+		entrypoint::ProgramResult,
+		pubkey::Pubkey,
+		msg,
+	};
+	use crate::misc::{Course, Instruction};
+	
+	entrypoint!(process_instruction);
+	
+	pub fn process_instruction(
+	program_id: &Pubkey,
+	accounts: &[AccountInfo],
+	instruction_data: &[u8],
+	) -> ProgramResult {
+		let instruction = Instruction::unpack(instruction_data)?;
+		match instruction {
+			Instruction::AddCourse(course) => {
+				msg!("Adding course: {:?}", course);
+				// Implementasi pembuatan PDA dan penyimpanan data
+			}
+		}
+		Ok(())
+	}
+\end{lstlisting}
+
+Penjelasan:
+\begin{itemize}
+	\item \texttt{entrypoint}: Mendefinisikan titik masuk program.
+	\item \texttt{process\_instruction}: Fungsi utama yang memproses instruksi dari klien.
+	\item \texttt{msg!}: Mencetak log ke terminal Solana untuk debugging.
+	\item \texttt{Instruction::unpack}: Memproses data byte menjadi objek \texttt{Instruction}.
+\end{itemize}
+
+\section{Membuat dan Menggunakan PDA}
+Kode berikut mendefinisikan fungsi untuk membuat alamat PDA dan menghitung ukuran akun:
+
+\begin{lstlisting}[language=Rust]
+	use solana_program::pubkey::Pubkey;
+	
+	pub fn derive_pda(program_id: &Pubkey, seeds: &[&[u8]]) -> (Pubkey, u8) {
+		Pubkey::find_program_address(seeds, program_id)
+	}
+	
+	pub fn calculate_account_size(course: &Course) -> usize {
+		let string_size = |s: &String| s.len() + 4; // 4 bytes tambahan untuk metadata
+		string_size(&course.name) +
+		string_size(&course.degree) +
+		string_size(&course.institution) +
+		string_size(&course.start_date)
+	}
+\end{lstlisting}
+
+Penjelasan:
+\begin{itemize}
+	\item \texttt{derive\_pda}: Menghasilkan alamat PDA menggunakan \textit{seed} dan ID program.
+	\item \texttt{calculate\_account\_size}: Menghitung ukuran akun berdasarkan panjang data string yang disimpan.
+	\item \texttt{string\_size}: Menambahkan 4 byte metadata untuk setiap string.
+\end{itemize}
+
+\section{Kesimpulan}
+Program ini menggunakan PDA untuk menyimpan data tentang mata kuliah di blockchain Solana. Setelah program selesai, gunakan validator lokal untuk menguji program dengan instruksi berikut:
+
+\begin{lstlisting}[language=bash]
+	cargo build-bpf
+	solana-test-validator --reset
+\end{lstlisting}
+
+Periksa log cluster untuk memastikan data berhasil disimpan dengan benar.

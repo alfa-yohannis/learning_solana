@@ -1,0 +1,192 @@
+\documentclass{book}
+
+\usepackage[a4paper,margin=3cm]{geometry}
+\usepackage{cite} % for IEEE-style citations
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{subcaption}
+\usepackage{fontspec}
+
+%\setmainfont{fonts/TitilliumWeb-Regular.ttf} 
+\setmainfont[
+%Path = fonts/, % Folder font
+UprightFont = TitilliumWeb-Regular, % Format nama font
+BoldFont = TitilliumWeb-Bold,
+ItalicFont = TitilliumWeb-Italic,
+BoldItalicFont = TitilliumWeb-BoldItalic
+]{TitilliumWeb}
+
+%\setlength{\parskip}{1em}
+
+\renewcommand{\contentsname}{Daftar Isi}
+\renewcommand{\chaptername}{Bab}
+
+\lstdefinelanguage{Rust} {
+	keywords={::, use, const, struct, fn, let, mut, move, pub, str, i32, if, else, true, false, enum, match, impl, for, while, loop, return, mod, crate, super, Self, self, break, continue, extern, ref, static, type, unsafe, as, async, await, dyn, macro_rules},
+	basicstyle=\ttfamily\footnotesize,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={Result, Option, Ok, None, Item, Vec, Error, Some, app, button, draw, enums, frame, input, prelude, table, window, Window, Button, Input, SecretInput, Table, Frame, Lazy, Mutex, new},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	string=[s]{'}{'},
+	morestring=[s]{"}{"},
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
+
+\lstdefinelanguage{Python} {
+	keywords={import, from, for, in, if, while, as},
+	basicstyle=\ttfamily\footnotesize,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={print},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+		comment=[l]{\#},
+	morecomment=[s]{'''}{'''},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
+
+
+
+\lstdefinelanguage{json} {
+	keywords={},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={iex},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+	comment=[l]{\#},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
+
+\lstdefinelanguage{json} {
+	keywords={},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={iex},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+	comment=[l]{\#},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
+
+
+
+
+\lstdefinelanguage{bash} {
+	keywords={},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={iex},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+	comment=[l]{\#},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
+
+\begin{document}
+		
+	\begin{titlepage}
+		\centering
+		\vspace*{1cm}
+		
+		\Huge
+		\textbf{Learning Solana Blockchain}
+		
+		\vspace{0.5cm}
+		
+		\LARGE
+		Universitas Pradita
+		
+		\vspace{1.5cm}
+		
+		\textit{Powered by ChatGPT}
+		
+		\vspace{2cm}
+		
+		\LARGE{\textbf{Alfa Yohannis}}\\
+		\large{alfa.ryano@pradita.ac.id}
+		
+		\vspace{0.8cm}
+		
+		\today
+		
+		\vfill
+	\end{titlepage}
+	
+	% Contents Page
+	\tableofcontents
+	
+	
+	\include{Session01.tex}
+	\include{Session02.tex}
+	\include{Session03.tex}
+	\include{Session04.tex}
+	\include{Session05.tex}
+	\include{Session06.tex}
+	\include{Session07.tex}
+	\include{Session08.tex}
+	\include{Session09.tex}
+	\include{Session10.tex}
+	
+	\appendix
+	\include{appendixA.tex}
+
+\end{document}

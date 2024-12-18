@@ -1,0 +1,92 @@
+
+
+\chapter{Persiapan Lingkungan Kerja untuk Pengembangan}
+
+
+Untuk mempersiapkan workstation lokal agar siap digunakan selama mengikuti kursus ini, beberapa alat perlu diinstal pada komputer Anda. Alat-alat yang akan digunakan meliputi Rust, Solana CLI, dan Python. Berikut adalah langkah-langkah instalasi, konfigurasi, dan pengujian untuk setiap komponen.
+
+\section{Instalasi dan Pengujian Rust}
+
+Untuk menginstal Rust, ikuti langkah-langkah berikut:
+\begin{enumerate}
+\item Unduh penginstal \texttt{RustUp} dari situs resmi Rust di \texttt{https://rustup.rs/}.
+\item Jalankan perintah berikut untuk menginstal:
+\begin{lstlisting}[language=bash]
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+\end{lstlisting}
+
+\item Update Rust:
+\begin{lstlisting}[language=bash]
+	rustup update stable
+\end{lstlisting}
+
+\item Setelah instalasi selesai, tambahkan \texttt{cargo} ke \texttt{PATH}:
+\begin{lstlisting}[language=bash]
+export PATH="$HOME/.cargo/bin:$PATH"
+\end{lstlisting}
+\item Perbarui Rust dengan perintah:
+\begin{lstlisting}[language=bash]
+rustup update
+\end{lstlisting}
+\item Periksa versi Cargo untuk memastikan instalasi berhasil:
+\begin{lstlisting}[language=bash]
+cargo --version
+\end{lstlisting}
+\end{enumerate}
+
+\section{Instalasi dan Pengujian Solana CLI}
+
+Untuk menginstal Solana CLI, ikuti langkah-langkah berikut:
+\begin{enumerate}
+\item Unduh rilis terbaru dari repositori GitHub Solana CLI di \texttt{https://github.com/solana-labs/solana/releases}.
+\item Ekstrak file yang diunduh menggunakan perintah berikut:
+\begin{lstlisting}[language=bash]
+tar -xvf solana-release-????.tar.bz2
+\end{lstlisting}
+\item Tambahkan Solana CLI ke \texttt{PATH} dengan menambahkan baris berikut ke skrip startup \texttt{BASH}:
+\begin{lstlisting}[language=bash]
+export PATH="/path/to/solana/bin:$PATH"
+\end{lstlisting}
+\item Periksa versi Solana CLI untuk memastikan instalasi berhasil:
+\begin{lstlisting}[language=bash]
+solana --version
+\end{lstlisting}
+\end{enumerate}
+
+
+
+\section{Instalasi dan Pengujian Python dengan Lingkungan Virtual}
+
+Untuk menginstal dan mengkonfigurasi Python, ikuti langkah-langkah berikut:
+\begin{enumerate}
+\item Pastikan Python telah terinstal pada sistem Anda. Periksa versi Python dengan perintah:
+\begin{lstlisting}[language=bash]
+python3 --version
+\end{lstlisting}
+\item Buat lingkungan virtual baru:
+\begin{lstlisting}[language=bash]
+python3 -m venv myenv
+\end{lstlisting}
+\item Aktifkan lingkungan virtual:
+\begin{lstlisting}[language=bash]
+source myenv/bin/activate
+\end{lstlisting}
+\item Tingkatkan versi \texttt{pip}:
+\begin{lstlisting}[language=bash]
+pip install --upgrade pip
+\end{lstlisting}
+\item Instal modul yang diperlukan, seperti \texttt{Django}, \texttt{Django REST Framework}, dan modul Solana:
+\begin{lstlisting}[language=bash]
+pip install django djangorestframework solana
+\end{lstlisting}
+\item Periksa instalasi modul dengan memeriksa versinya:
+\begin{lstlisting}[language=bash]
+django-admin --version
+\end{lstlisting}
+\end{enumerate}
+
+Dengan langkah-langkah di atas, semua komponen yang diperlukan telah terinstal dan siap digunakan untuk pengembangan selama kursus ini.
+
+
+
+

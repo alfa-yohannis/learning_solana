@@ -1,0 +1,120 @@
+\chapter{Menulis Python Client untuk Berinteraksi dengan Program Solana}
+
+Bab ini membahas cara menulis Python client yang mengirimkan permintaan ke program Solana untuk menyimpan data mata kuliah di blockchain. Python client ini menggunakan modul \texttt{solathon} dan \texttt{soldars}, serta memanfaatkan serialisasi data dengan \texttt{borsh-construct}.
+
+\section{Instalasi Modul Python}
+Langkah pertama adalah menginstal modul yang diperlukan. Gunakan perintah berikut:
+
+\begin{lstlisting}[language=bash]
+	pip install solathon solders borsh-construct
+\end{lstlisting}
+
+\section{Langkah-Langkah Penulisan Python Client}
+
+\subsection{Mengimpor Modul dan Membuat Data Instruksi}
+Langkah pertama dalam menulis Python client adalah mengimpor modul yang akan digunakan dan membuat data instruksi yang akan dikirim ke program Solana:
+
+\begin{lstlisting}[language=Python]
+	from solders.pubkey import Pubkey
+	from solders.system_program import SYS_PROGRAM_ID
+	from solathon import Client, Keypair, Transaction
+	from solathon.core.instructions import AccountMeta, Instruction
+	from borsh_construct import CStruct, U8, String
+	
+	# Definisi format data untuk serialisasi
+	InstructionData = CStruct(
+	"variant" / U8,  # Jenis instruksi
+	"name" / String,
+	"degree" / String,
+	"institution" / String,
+	"start_date" / String
+	)
+	
+	# Data kursus baru
+	data = InstructionData.build({
+		"variant": 0,  # Menambahkan kursus baru
+		"name": "Pemrograman Lanjut",
+		"degree": "Sarjana Teknik",
+		"institution": "Pradita University",
+		"start_date": "2024-01-10"
+	})
+\end{lstlisting}
+
+Penjelasan:
+\begin{itemize}
+	\item \texttt{InstructionData}: Struktur data yang didefinisikan menggunakan \texttt{borsh-construct}. Ini menentukan format data yang akan dikirim.
+	\item \texttt{build}: Metode ini digunakan untuk membangun data byte dari dictionary Python.
+\end{itemize}
+
+\subsection{Membuat Koneksi ke Cluster Lokal}
+Langkah selanjutnya adalah menginisialisasi koneksi ke cluster Solana lokal:
+
+\begin{lstlisting}[language=Python]
+	# Inisialisasi client ke localhost
+	client = Client("http://127.0.0.1:8899")
+\end{lstlisting}
+
+\subsection{Mempersiapkan Akun dan Derivasi PDA}
+Kita memerlukan akun-alamat seperti Alice, sistem program, dan PDA. PDA dihasilkan berdasarkan \textit{seed} dan ID program.
+
+\begin{lstlisting}[language=Python]
+	# Kunci publik ID program
+	program_id = Pubkey.from_string("6aoQLhkzjqr4EPiaQJU2wdXx1J6E5qTLkWkqkFyaNiLo")
+	
+	# Akun Alice
+	alice_keypair = Keypair.from_mnemonic("mnemonic Alice")
+	alice_pubkey = alice_keypair.pubkey
+	
+	# Derivasi alamat PDA
+	seed = [b"course", alice_pubkey.to_bytes()]
+	pda_pubkey, bump = Pubkey.find_program_address(seed, program_id)
+\end{lstlisting}
+
+Penjelasan:
+\begin{itemize}
+	\item \texttt{Pubkey.find\_program\_address}: Metode dari \texttt{soldars} untuk menghasilkan alamat PDA.
+	\item \texttt{seed}: Daftar byte yang digunakan untuk derivasi PDA.
+\end{itemize}
+
+\subsection{Membuat Instruksi dan Transaksi}
+Setelah semua komponen disiapkan, buat instruksi dan transaksi yang akan dikirim ke program Solana:
+
+\begin{lstlisting}[language=Python]
+	# Membuat instruksi
+	instruction = Instruction(
+	program_id=program_id,
+	accounts=[
+	AccountMeta(pubkey=alice_pubkey, is_signer=True, is_writable=True),
+	AccountMeta(pubkey=pda_pubkey, is_signer=False, is_writable=True),
+	AccountMeta(pubkey=SYS_PROGRAM_ID, is_signer=False, is_writable=False),
+	],
+	data=data
+	)
+	
+	# Membuat transaksi
+	transaction = Transaction(instructions=[instruction], signers=[alice_keypair])
+	
+	# Mengirimkan transaksi ke cluster lokal
+	response = client.send_transaction(transaction)
+	print("Transaction Signature:", response)
+\end{lstlisting}
+
+Penjelasan:
+\begin{itemize}
+	\item \texttt{Instruction}: Menentukan instruksi yang akan dikirim ke program Solana.
+	\item \texttt{Transaction}: Menggabungkan instruksi dan menandatanganinya menggunakan akun Alice.
+	\item \texttt{send\_transaction}: Mengirimkan transaksi ke cluster Solana.
+\end{itemize}
+
+\subsection{Memverifikasi Data di Log}
+Log terminal akan menunjukkan pesan sukses beserta data kursus yang telah disimpan. Periksa log cluster untuk melihat status transaksi dan data yang disimpan.
+
+\section{Menggunakan Curl untuk Verifikasi}
+Sebagai tambahan, gunakan \texttt{curl} untuk mendapatkan semua akun program:
+
+\begin{lstlisting}[language=bash]
+	curl http://127.0.0.1:8899 -X POST -H "Content-Type: application/json" \
+	-d '{"jsonrpc":"2.0","id":1,"method":"getProgramAccounts","params":["ProgramID"]}'
+\end{lstlisting}
+
+Hasilnya akan mencantumkan alamat PDA yang dibuat dan data yang disimpan di dalamnya.

@@ -1,0 +1,153 @@
+\chapter{Membangun Django REST API untuk Berinteraksi dengan Program Solana}
+
+Bab ini menjelaskan cara membuat REST API menggunakan Django untuk membungkus kode Solana dari materi sebelumnya. REST API ini memungkinkan aplikasi mengirim permintaan HTTP untuk menyimpan data kursus baru di blockchain melalui program Solana. Proses ini menggantikan penggunaan basis data tradisional dengan menyimpan data langsung di blockchain Solana.
+
+\section{Prasyarat dan Persiapan}
+Sebelum memulai, pastikan bahwa:
+\begin{itemize}
+	\item Django dan Django REST Framework telah diinstal.
+	\item Modul Python untuk Solana (\texttt{solathon}, \texttt{soldars}, \texttt{borsh-construct}) sudah tersedia.
+	\item Cluster Solana lokal sedang berjalan pada jendela terminal terpisah.
+\end{itemize}
+
+\subsection{Membuat Proyek Django dan Aplikasi}
+Buat proyek Django baru dan tambahkan aplikasi untuk API:
+
+\begin{lstlisting}[language=bash]
+	django-admin startproject solana_api
+	cd solana_api
+	python manage.py startapp courses
+\end{lstlisting}
+
+Tambahkan aplikasi \texttt{courses} ke dalam \texttt{INSTALLED\_APPS} di \texttt{settings.py}:
+
+\begin{lstlisting}[language=python]
+	INSTALLED_APPS = [
+	...
+	'courses',
+	'rest_framework',
+	]
+\end{lstlisting}
+
+\section{Membuat Kelas untuk Interaksi dengan Blockchain Solana}
+Buat file \texttt{utils.py} di dalam aplikasi \texttt{courses} untuk menyimpan logika interaksi blockchain.
+
+\subsection{Kelas SolanaAPIStart di \texttt{utils.py}}
+\begin{lstlisting}[language=Python]
+	from solders.pubkey import Pubkey
+	from solathon import Client, Keypair, Transaction
+	from solathon.core.instructions import AccountMeta, Instruction
+	from borsh_construct import CStruct, U8, String
+	
+	class SolanaAPIStart:
+	def __init__(self, public_key, private_key, cluster_url):
+	self.public_key = Pubkey.from_string(public_key)
+	self.keypair = Keypair.from_private_key(private_key)
+	self.client = Client(cluster_url)
+	
+	def verify_user_wallet(self):
+	derived_pubkey = self.keypair.pubkey
+	return derived_pubkey == self.public_key
+	
+	def generate_pda_address(self, program_id, seed_data):
+	program_id = Pubkey.from_string(program_id)
+	seed_bytes = [seed.encode('utf-8') for seed in seed_data]
+	pda_pubkey, bump = Pubkey.find_program_address(seed_bytes, program_id)
+	return pda_pubkey
+	
+	def send_transaction(self, program_id, course_data, pda_pubkey):
+	InstructionData = CStruct(
+	"variant" / U8,
+	"name" / String,
+	"degree" / String,
+	"institution" / String,
+	"start_date" / String
+	)
+	serialized_data = InstructionData.build(course_data)
+	
+	instruction = Instruction(
+	program_id=program_id,
+	accounts=[
+	AccountMeta(pubkey=self.public_key, is_signer=True, is_writable=True),
+	AccountMeta(pubkey=pda_pubkey, is_signer=False, is_writable=True),
+	],
+	data=serialized_data
+	)
+	
+	transaction = Transaction(instructions=[instruction], signers=[self.keypair])
+	response = self.client.send_transaction(transaction)
+	return response
+\end{lstlisting}
+
+\subsection{Penjelasan Kode}
+\begin{itemize}
+	\item \texttt{verify\_user\_wallet}: Memverifikasi bahwa kunci publik yang diberikan cocok dengan kunci privat.
+	\item \texttt{generate\_pda\_address}: Menghasilkan alamat PDA berdasarkan program ID dan data \textit{seed}.
+	\item \texttt{send\_transaction}: Membuat instruksi, serialisasi data kursus, dan mengirim transaksi ke cluster Solana.
+\end{itemize}
+
+\section{Membuat Endpoint di \texttt{views.py}}
+Tambahkan endpoint di \texttt{views.py} untuk menangani permintaan POST:
+
+\begin{lstlisting}[language=Python]
+	from rest_framework.views import APIView
+	from rest_framework.response import Response
+	from .utils import SolanaAPIStart
+	
+	class AddCourseView(APIView):
+	permission_classes = []  # Allow any
+	
+	def post(self, request):
+	public_key = request.headers.get("Public-Key")
+	private_key = request.headers.get("Private-Key")
+	course_data = request.data
+	
+	solana_api = SolanaAPIStart(public_key, private_key, "http://127.0.0.1:8899")
+	
+	if not solana_api.verify_user_wallet():
+	return Response({"error": "Invalid key pair"}, status=400)
+	
+	program_id = "Your Program ID"
+	pda_pubkey = solana_api.generate_pda_address(program_id, [course_data['name'], course_data['start_date']])
+	
+	response = solana_api.send_transaction(program_id, course_data, pda_pubkey)
+	return Response({"transaction": response})
+\end{lstlisting}
+
+\subsection{Penjelasan Kode}
+\begin{itemize}
+	\item \texttt{AddCourseView}: Kelas ini menangani permintaan POST untuk menambahkan data kursus baru ke blockchain Solana.
+	\item \texttt{request.headers}: Mengambil kunci publik dan privat dari \textit{headers} permintaan.
+	\item \texttt{request.data}: Mengambil data kursus dari \textit{body} permintaan.
+\end{itemize}
+
+\section{Menambahkan URL Endpoint}
+Tambahkan pola URL di \texttt{urls.py}:
+
+\begin{lstlisting}[language=Python]
+	from django.urls import path
+	from .views import AddCourseView
+	
+	urlpatterns = [
+	path('add-course/', AddCourseView.as_view(), name='add-course'),
+	]
+\end{lstlisting}
+
+\section{Mengirim Permintaan POST ke API}
+Jalankan proyek Django:
+
+\begin{lstlisting}[language=bash]
+	python manage.py runserver
+\end{lstlisting}
+
+Kirim permintaan POST menggunakan \texttt{curl}:
+
+\begin{lstlisting}[language=bash]
+	curl -X POST http://127.0.0.1:8000/add-course/ \
+	-H "Content-Type: application/json" \
+	-H "Public-Key: Alice's public key" \
+	-H "Private-Key: Alice's private key" \
+	-d '{"name": "Pemrograman Lanjut", "degree": "Sarjana Teknik", "institution": "Pradita University", "start_date": "2024-01-10"}'
+\end{lstlisting}
+
+Log cluster Solana akan menunjukkan bahwa program berhasil di-invoke, dan data kursus telah disimpan di akun PDA.

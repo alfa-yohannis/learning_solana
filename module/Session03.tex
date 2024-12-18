@@ -1,0 +1,310 @@
+\chapter{Pengantar Rust dan Penggunaan dalam Program Solana}
+
+Rust adalah bahasa pemrograman tujuan umum yang diperkenalkan pada tahun 2015. Bahasa ini dikenal karena fitur keamanan memorinya yang unggul serta kinerjanya yang cepat. Program pada blockchain Solana dapat ditulis menggunakan Rust, C++, atau C. Mempelajari Rust menjadi keterampilan yang berguna, terutama dalam pengembangan program Solana. Berikut adalah konsep-konsep Rust yang sering digunakan dalam penulisan program Solana.
+
+\section{Structs}
+
+Struct merupakan fitur untuk membuat tipe data kustom. Dengan menggunakan struct, data atau variabel yang saling terkait dapat dikelompokkan bersama. Selain itu, struct dapat memiliki fungsi atau metode yang mendefinisikan perilaku struct melalui blok implementasi. Terdapat dua jenis struct:
+\begin{itemize}
+	\item \textbf{Classic Struct}: Memiliki field yang diberi nama.
+	\item \textbf{Tuple Struct}: Memiliki field tanpa nama.
+\end{itemize}
+
+Contoh berikut menunjukkan penggunaan \textit{classic struct} dan \textit{tuple struct}:
+
+\begin{lstlisting}[language=Rust, caption={Contoh Struct dalam Rust}]
+	struct ClassicStruct {
+		field1: i32,
+		field2: String,
+	}
+	
+	struct TupleStruct(i32, String);
+	
+	fn main() {
+		// Classic Struct
+		let classic = ClassicStruct {
+			field1: 42,
+			field2: String::from("Hello, Rust!"),
+		};
+		println!("ClassicStruct: field1 = {}, field2 = {}", classic.field1, classic.field2);
+		
+		// Tuple Struct
+		let tuple = TupleStruct(99, String::from("Tuple Example"));
+		println!("TupleStruct: field1 = {}, field2 = {}", tuple.0, tuple.1);
+	}
+\end{lstlisting}
+
+\textbf{Output:}
+\begin{lstlisting}[language=bash, caption={Output Program Struct}]
+	ClassicStruct: field1 = 42, field2 = Hello, Rust!
+	TupleStruct: field1 = 99, field2 = Tuple Example
+\end{lstlisting}
+
+\textbf{Penjelasan Kode:}
+\begin{itemize}
+	\item \texttt{struct ClassicStruct \{ field1: i32, field2: String \}}: Mendefinisikan sebuah \textit{Classic Struct} dengan dua \textit{field} bernama \texttt{field1} bertipe \texttt{i32} dan \texttt{field2} bertipe \texttt{String}.
+	\item \texttt{struct TupleStruct(i32, String)}: Mendefinisikan sebuah \textit{Tuple Struct} dengan dua \textit{field} tanpa nama, yaitu \texttt{i32} dan \texttt{String}.
+	\item \texttt{let classic = ClassicStruct \{ field1: 42, field2: String::from("Hello, Rust!") \}}: Membuat sebuah instance \textit{Classic Struct} dengan nilai \texttt{field1} = 42 dan \texttt{field2} = "Hello, Rust!". Output yang dihasilkan adalah \texttt{ClassicStruct: field1 = 42, field2 = Hello, Rust!}.
+	\item \texttt{println!("ClassicStruct: field1 = \{\}, field2 = \{\}", classic.field1, classic.field2)}: Menampilkan nilai dari masing-masing \textit{field} pada \textit{Classic Struct}.
+	\item \texttt{let tuple = TupleStruct(99, String::from("Tuple Example"))}: Membuat sebuah instance \textit{Tuple Struct} dengan nilai pertama 99 dan nilai kedua "Tuple Example". Output yang dihasilkan adalah \texttt{TupleStruct: field1 = 99, field2 = Tuple Example}.
+	\item \texttt{println!("TupleStruct: field1 = \{\}, field2 = \{\}", tuple.0, tuple.1)}: Menampilkan nilai dari masing-masing elemen pada \textit{Tuple Struct} menggunakan indeks (\texttt{tuple.0} dan \texttt{tuple.1}).
+\end{itemize}
+
+\section{Enums}
+
+Enum, atau enumerasi, memungkinkan pendefinisian tipe dengan enumerasi beberapa variannya. Variasi ini memiliki keterkaitan dan dikelompokkan bersama dalam tipe enum yang sama. Contoh umum enum adalah \texttt{IP} dengan tipe alamat \texttt{V4} dan \texttt{V6}. Contoh berikut menunjukkan pembuatan enum, instansiasi variannya, serta penggunaannya dengan pernyataan \texttt{match}:
+
+\begin{lstlisting}[language=Rust, caption={Contoh Enum dalam Rust}]
+	enum IP {
+		V4(String),
+		V6(String),
+	}
+	
+	fn main() {
+		let ip_address = IP::V4(String::from("192.168.1.1"));
+		
+		match ip_address {
+			IP::V4(addr) => println!("IPv4 Address: {}", addr),
+			IP::V6(addr) => println!("IPv6 Address: {}", addr),
+		}
+	}
+\end{lstlisting}
+
+\textbf{Output:}
+\begin{lstlisting}[language=bash, caption={Output Program Enum}]
+	IPv4 Address: 192.168.1.1
+\end{lstlisting}
+
+\textbf{Penjelasan Kode:}
+\begin{itemize}
+	\item \texttt{enum IP \{ V4(String), V6(String) \}}: Mendefinisikan sebuah enum \texttt{IP} dengan dua varian, yaitu \texttt{V4} dan \texttt{V6}. Kedua varian tersebut menerima parameter bertipe \texttt{String}.
+	\item \texttt{let ip\_address = IP::V4(String::from("192.168.1.1"))}: Membuat sebuah instance dari enum \texttt{IP} dengan varian \texttt{V4} dan nilai \texttt{"192.168.1.1"}.
+	\item \texttt{match ip\_address \{ ... \}}: Menggunakan pernyataan \texttt{match} untuk memeriksa varian dari instance \texttt{ip\_address}.
+	\begin{itemize}
+		\item Jika \texttt{ip\_address} memiliki varian \texttt{V4}, nilai parameter \texttt{addr} akan dicocokkan, dan \texttt{println!} akan menampilkan \texttt{"IPv4 Address: 192.168.1.1"}.
+		\item Jika \texttt{ip\_address} memiliki varian \texttt{V6}, nilai parameter \texttt{addr} akan dicocokkan, dan \texttt{println!} akan menampilkan \texttt{"IPv6 Address: ..."}.
+	\end{itemize}
+	\item \texttt{println!("IPv4 Address: {}", addr)}: Menampilkan nilai \texttt{addr} pada varian \texttt{V4}, menghasilkan output \texttt{"IPv4 Address: 192.168.1.1"}.
+\end{itemize}
+
+\section{Macros}
+
+Macro adalah fitur yang kuat dan fleksibel dalam Rust yang memungkinkan pendefinisian pola kode yang dapat digunakan kembali dan memperluas sintaksis. Macro dikaitkan dengan \textit{meta-programming}, memungkinkan pembuatan konstruksi kode generik dan repetitif. Terdapat dua jenis macro:
+\begin{itemize}
+	\item \textbf{Macro Prosedural}: Digunakan untuk menghasilkan kode baru pada waktu kompilasi.
+	\item \textbf{Macro Deklaratif}: Digunakan untuk mendefinisikan pola dan kode pengganti yang sesuai.
+\end{itemize}
+
+Macro deklaratif akan mencocokkan pola terhadap kode yang diberikan dan menghasilkan kode pengganti. Contoh berikut menunjukkan penggunaan sederhana macro deklaratif buatan sendiri:
+
+\begin{lstlisting}[language=Rust, caption={Contoh Macro Deklaratif Buatan Sendiri dalam Rust}]
+	macro_rules! repeat_message {
+		($msg:expr, $times:expr) => {
+			for _ in 0..$times {
+				println!("{}", $msg);
+			}
+		};
+	}
+	
+	fn main() {
+		repeat_message!("Hello, Rust Macro!", 3);
+	}
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash, caption={Output Program Macro}]
+	Hello, Rust Macro!
+	Hello, Rust Macro!
+	Hello, Rust Macro!
+\end{lstlisting}
+
+\textbf{Penjelasan Kode:}
+\begin{itemize}
+	\item \texttt{macro\_rules! repeat\_message}: Mendefinisikan sebuah macro bernama \texttt{repeat\_message} yang menerima dua parameter: \texttt{\$msg} (pesan yang akan dicetak) dan \texttt{\$times} (jumlah pengulangan).
+	\item \texttt{for \_ in 0..\$times}: Menggunakan loop untuk mencetak pesan \texttt{\$msg} sebanyak \texttt{\$times}.
+	\item \texttt{repeat\_message!("Hello, Rust Macro!", 3)}: Memanggil macro dengan pesan \texttt{"Hello, Rust Macro!"} dan jumlah pengulangan sebanyak 3 kali.
+	\item Output: Menampilkan pesan sebanyak tiga kali dengan isi \texttt{"Hello, Rust Macro!"}.
+\end{itemize}
+
+
+\section{Result Enum}
+
+\texttt{Result} adalah tipe enum yang merepresentasikan hasil dari suatu operasi yang dapat berupa keberhasilan atau kegagalan. Enum ini sering digunakan untuk penanganan kesalahan. \texttt{T} merepresentasikan tipe nilai yang dikembalikan jika operasi berhasil, dan \texttt{E} merepresentasikan tipe kesalahan yang dikembalikan jika operasi gagal. Contoh berikut menunjukkan penggunaan \texttt{Result} untuk keberhasilan dan kegagalan:
+
+\begin{lstlisting}[language=Rust, caption={Contoh Penggunaan Result Enum dalam Rust}]
+	fn divide(a: i32, b: i32) -> Result<i32, String> {
+		if b == 0 {
+			Err(String::from("Division by zero error"))
+		} else {
+			Ok(a / b)
+		}
+	}
+	
+	fn main() {
+		match divide(10, 2) {
+			Ok(result) => println!("Result: {}", result),
+			Err(error) => println!("Error: {}", error),
+		}
+		
+		match divide(10, 0) {
+			Ok(result) => println!("Result: {}", result),
+			Err(error) => println!("Error: {}", error),
+		}
+	}
+\end{lstlisting}
+
+\textbf{Output:}
+\begin{lstlisting}[language=bash, caption={Output Program Result Enum}]
+	Result: 5
+	Error: Division by zero error
+\end{lstlisting}
+
+\textbf{Penjelasan Kode:}
+\begin{itemize}
+	\item \texttt{fn divide(a: i32, b: i32) -> Result<i32, String>}: Mendefinisikan fungsi \texttt{divide} yang menerima dua parameter bertipe \texttt{i32} (\texttt{a} dan \texttt{b}) dan mengembalikan nilai \texttt{Result} yang dapat berupa \texttt{Ok(i32)} jika operasi berhasil atau \texttt{Err(String)} jika operasi gagal.
+	\item \texttt{if b == 0 \{ ... \}}: Mengecek apakah nilai \texttt{b} sama dengan nol. Jika benar, fungsi mengembalikan \texttt{Err} dengan pesan kesalahan \texttt{"Division by zero error"}.
+	\item \texttt{Ok(a / b)}: Jika \texttt{b} tidak nol, fungsi mengembalikan hasil pembagian \texttt{a / b} dalam \texttt{Ok}.
+	\item \texttt{match divide(10, 2)}: Memanggil fungsi \texttt{divide} dengan argumen \texttt{10} dan \texttt{2}.
+	\begin{itemize}
+		\item Jika hasilnya \texttt{Ok(result)}, maka \texttt{result} dicetak menggunakan \texttt{println!}.
+		\item Jika hasilnya \texttt{Err(error)}, maka \texttt{error} dicetak menggunakan \texttt{println!}.
+	\end{itemize}
+	\item \texttt{match divide(10, 0)}: Memanggil fungsi \texttt{divide} dengan argumen \texttt{10} dan \texttt{0}.
+	\begin{itemize}
+		\item Karena pembagian dengan nol tidak valid, fungsi mengembalikan \texttt{Err(String::from("Division by zero error"))}, dan pesan kesalahan dicetak.
+	\end{itemize}
+	\item Output:
+	\begin{itemize}
+		\item Baris pertama: \texttt{Result: 5} menunjukkan pembagian berhasil dilakukan dengan hasil \texttt{10 / 2 = 5}.
+		\item Baris kedua: \texttt{Error: Division by zero error} menunjukkan kesalahan karena pembagian dengan nol.
+	\end{itemize}
+\end{itemize}
+
+\section{Traits}
+
+Trait digunakan untuk mendefinisikan perilaku bersama yang dapat dimiliki oleh berbagai tipe data. Trait dapat diterapkan pada tipe data dengan menggunakan kata kunci \texttt{impl} diikuti oleh nama trait untuk tipe data tersebut. Contoh berikut menunjukkan pembuatan trait bernama \texttt{Say} dan penerapannya pada sebuah struct:
+
+\begin{lstlisting}[language=Rust, caption={Contoh Trait dalam Rust}]
+	trait Say {
+		fn say_hello(&self);
+	}
+	
+	struct Person {
+		name: String,
+	}
+	
+	impl Say for Person {
+		fn say_hello(&self) {
+			println!("Hello, my name is {}!", self.name);
+		}
+	}
+	
+	fn main() {
+		let person = Person {
+			name: String::from("Alice"),
+		};
+		person.say_hello();
+	}
+\end{lstlisting}
+
+\textbf{Output:}
+\begin{lstlisting}[language=bash, caption={Output Program Trait}]
+	Hello, my name is Alice!
+\end{lstlisting}
+
+Trait juga dapat memiliki implementasi dasar oleh kompiler menggunakan atribut \texttt{derive}, namun implementasi manual tetap memungkinkan untuk perilaku yang lebih kompleks.
+
+\textbf{Penjelasan Kode:}
+\begin{itemize}
+	\item \texttt{trait Say \{ fn say\_hello(\&self); \}}: Mendefinisikan sebuah \textit{trait} bernama \texttt{Say} yang memiliki satu fungsi \texttt{say\_hello}. Fungsi ini diharapkan diimplementasikan oleh tipe data apa pun yang menggunakan \textit{trait} ini.
+	\item \texttt{struct Person \{ name: String \}}: Mendefinisikan sebuah \textit{struct} bernama \texttt{Person} dengan satu \textit{field}, yaitu \texttt{name} bertipe \texttt{String}.
+	\item \texttt{impl Say for Person \{ ... \}}: Mengimplementasikan \textit{trait} \texttt{Say} untuk tipe data \texttt{Person}.
+	\begin{itemize}
+		\item \texttt{fn say\_hello(\&self) \{ ... \}}: Fungsi \texttt{say\_hello} dicetak dengan pesan \texttt{"Hello, my name is \{\}!"}, di mana \texttt{\{\}} diisi dengan nilai \texttt{self.name}.
+	\end{itemize}
+	\item \texttt{let person = Person \{ name: String::from("Alice") \}}: Membuat sebuah instance \texttt{Person} dengan nama \texttt{"Alice"}.
+	\item \texttt{person.say\_hello()}: Memanggil metode \texttt{say\_hello} pada instance \texttt{Person}, yang mencetak pesan sesuai implementasi.
+	\item Output: \texttt{"Hello, my name is Alice!"} menunjukkan bahwa metode \texttt{say\_hello} berhasil memanggil nilai \texttt{name} dari \texttt{Person}.
+\end{itemize}
+
+\section{Crate \texttt{SolanaProgram}}
+
+Crate \texttt{SolanaProgram} merupakan pustaka standar yang digunakan dalam pengembangan program pada blockchain Solana. Crate ini mencakup berbagai modul dan macro yang mendukung penulisan program. Program Solana yang ditulis dengan Rust biasanya dimulai dengan mengimpor komponen dari crate \texttt{SolanaProgram} menggunakan kata kunci \texttt{use}. Contoh berikut menunjukkan penggunaan crate ini:
+
+\begin{lstlisting}[language=Rust, caption={Impor Komponen dari Crate SolanaProgram}]
+	use solana_program::{
+		account_info::AccountInfo,
+		entrypoint,
+		entrypoint::ProgramResult,
+		pubkey::Pubkey,
+		msg,
+	};
+\end{lstlisting}
+
+\textbf{Penjelasan Kode:}
+\begin{itemize}
+	\item \texttt{use solana\_program::...}: Mengimpor modul-modul seperti \texttt{AccountInfo}, \texttt{entrypoint}, \texttt{ProgramResult}, \texttt{Pubkey}, dan \texttt{msg}. Modul-modul ini digunakan untuk menangani akun, menentukan entri program, dan mencetak log dalam program Solana.
+\end{itemize}
+
+\section{\texttt{AccountInfo} dan \texttt{EntryPoint}}
+
+\texttt{AccountInfo} adalah \textit{struct} yang berisi berbagai \textit{field} terkait dengan akun Solana. \texttt{EntryPoint} adalah macro yang digunakan untuk menentukan fungsi utama yang akan dieksekusi oleh runtime Solana. Macro ini menginisiasi fungsi \texttt{process\_instruction} yang menangani instruksi. Contoh berikut menunjukkan implementasi fungsi dengan \texttt{EntryPoint}:
+
+\begin{lstlisting}[language=Rust, caption={Implementasi EntryPoint dengan Fungsi \texttt{process\_instruction}}]
+	entrypoint!(process_instruction);
+	
+	fn process_instruction(
+	_program_id: &Pubkey,
+	_accounts: &[AccountInfo],
+	_instruction_data: &[u8],
+	) -> ProgramResult {
+		msg!("Program executed successfully!");
+		Ok(())
+	}
+\end{lstlisting}
+
+\textbf{Penjelasan Kode:}
+\begin{itemize}
+	\item \texttt{entrypoint!(process\_instruction)}: Mendefinisikan \texttt{process\_instruction} sebagai fungsi utama program. Fungsi ini akan dipanggil oleh runtime Solana.
+	\item \texttt{fn process\_instruction(...): ProgramResult}: Fungsi ini menerima tiga parameter, yaitu ID program (\texttt{\_program\_id}), daftar akun (\texttt{\_accounts}), dan data instruksi (\texttt{\_instruction\_data}).
+	\item \texttt{msg!("Program executed successfully!")}: Macro \texttt{msg} mencetak pesan \texttt{"Program executed successfully!"} ke log sebagai indikasi bahwa program telah berhasil dieksekusi.
+	\item \texttt{Ok(())}: Mengembalikan nilai keberhasilan tanpa kesalahan.
+\end{itemize}
+
+Pesan \texttt{"Program executed successfully!"} akan dicetak ke log untuk menunjukkan bahwa program berhasil dieksekusi tanpa kesalahan.
+
+\section{\texttt{ProgramResult} dan Transaksi Solana}
+
+\texttt{ProgramResult} adalah enum dengan dua opsi: \texttt{Ok} untuk keberhasilan atau \texttt{Err} untuk kegagalan yang menghasilkan \texttt{ProgramError}. Transaksi Solana terdiri dari satu atau lebih instruksi, di mana setiap instruksi dapat dieksekusi dengan memanfaatkan \textit{pattern matching}. Contoh berikut menunjukkan implementasi sederhana dengan \textit{pattern matching}:
+
+\begin{lstlisting}[language=Rust, caption={Implementasi \texttt{ProgramResult} dan Instruksi}]
+	fn process_instruction(
+	_program_id: &Pubkey,
+	_accounts: &[AccountInfo],
+	instruction_data: &[u8],
+	) -> ProgramResult {
+		match instruction_data {
+			[1] => {
+				msg!("Instruction 1 executed");
+				Ok(())
+			}
+			[2] => {
+				msg!("Instruction 2 executed");
+				Ok(())
+			}
+			_ => {
+				msg!("Invalid instruction");
+				Err(ProgramError::InvalidInstructionData)
+			}
+		}
+	}
+\end{lstlisting}
+
+\textbf{Penjelasan Kode:}
+\begin{itemize}
+	\item \texttt{match instruction\_data}: Menggunakan \textit{pattern matching} untuk mencocokkan data instruksi.
+	\item \texttt{[1]}: Jika data instruksi bernilai \texttt{1}, pesan \texttt{"Instruction 1 executed"} dicetak menggunakan macro \texttt{msg}, dan \texttt{Ok(())} dikembalikan untuk menunjukkan keberhasilan.
+	\item \texttt{[2]}: Jika data instruksi bernilai \texttt{2}, pesan \texttt{"Instruction 2 executed"} dicetak, dan \texttt{Ok(())} dikembalikan.
+	\item \texttt{\_}: Pola ini menangkap semua nilai instruksi lain. Jika data instruksi tidak sesuai dengan \texttt{[1]} atau \texttt{[2]}, pesan \texttt{"Invalid instruction"} dicetak, dan fungsi mengembalikan \texttt{Err(ProgramError::InvalidInstructionData)} untuk menunjukkan kesalahan.
+\end{itemize}
+
+Jika data instruksi bernilai \texttt{1}, log akan mencetak \texttt{"Instruction 1 executed"}. Jika data instruksi bernilai \texttt{2}, log akan mencetak \texttt{"Instruction 2 executed"}. Untuk nilai lain, log akan mencetak \texttt{"Invalid instruction"} dan mengembalikan kesalahan.

@@ -1,0 +1,198 @@
+\chapter{Menulis Program Solana dengan Rust}
+
+Bagian ini menjelaskan cara menulis program Solana menggunakan bahasa Rust dan menjalankannya pada \textit{local cluster}. Program ini akan dibuat menggunakan \textit{package manager} Rust, yaitu \texttt{cargo}.
+
+\section{Inisialisasi Library Program Solana}
+Gunakan \texttt{cargo} untuk menginisialisasi library tempat program Solana akan ditulis. Langkah pertama adalah membuat library baru:
+
+\begin{lstlisting}[language=bash]
+	cargo init solana_rust_django --lib
+	cd solana_rust_django
+\end{lstlisting}
+
+Perintah di atas akan membuat sebuah library bernama \texttt{solana\_rust\_django} dan berpindah ke direktori tersebut. 
+
+Perintah \texttt{cargo init solana\_rust\_django --lib} digunakan untuk menginisialisasi proyek pustaka (*library*) Rust baru. Berikut adalah penjelasan lebih rinci mengenai fungsinya:
+
+Flag \texttt{--lib} menunjukkan bahwa proyek yang dibuat adalah pustaka Rust, bukan program yang dapat dieksekusi secara langsung. Proyek pustaka dirancang untuk kode yang dapat digunakan kembali dan diimpor sebagai dependensi dalam proyek Rust lainnya.
+
+Saat perintah ini dijalankan, proyek Cargo baru akan diinisialisasi dalam direktori bernama \texttt{solana\_rust\_django}. Proses ini menghasilkan struktur proyek dasar yang meliputi:
+\begin{itemize}
+	\item Berkas \texttt{Cargo.toml}: Berkas manifest ini berisi metadata proyek, seperti nama proyek, versi, informasi penulis, dan spesifikasi dependensi.
+	\item Direktori \texttt{src/}: Direktori ini digunakan untuk menyimpan kode sumber pustaka. Secara default, direktori ini berisi satu berkas bernama \texttt{lib.rs}.
+	\item Inisialisasi repositori Git opsional: Jika Git telah terpasang dan tersedia, direktori proyek juga akan diinisialisasi sebagai repositori Git.
+\end{itemize}
+
+Setelah menjalankan perintah ini, struktur direktori berikut akan dibuat:
+\begin{verbatim}
+	solana_rust_django/
+	├── Cargo.toml
+	└── src/
+	└── lib.rs
+\end{verbatim}
+
+Perintah ini sangat berguna untuk proyek-proyek yang membutuhkan kode Rust yang terenkapsulasi dan dapat digunakan kembali. Sebagai contoh, pustaka yang dibuat dengan perintah ini dapat dirancang untuk menangani fungsionalitas spesifik, seperti integrasi operasi blockchain Solana atau menjembatani logika Rust dengan aplikasi Django. Pustaka ini juga dapat diimpor ke dalam proyek Rust lainnya atau diekspos ke aplikasi Python menggunakan alat seperti \texttt{pyo3}.
+
+Setelah itu, perbarui file \texttt{Cargo.toml} untuk menyertakan pengaturan konfigurasi library yang diperlukan:
+
+\begin{lstlisting}[language=Rust]
+	[lib]
+	name = "solana_rust_django"
+	crate-type = ["cdylib", "lib"]
+\end{lstlisting}
+
+\subsubsection*{Penjelasan Konfigurasi}
+
+\paragraph{1. \texttt{name = "solana\_rust\_django"}} 
+\begin{itemize}
+	\item \textbf{Fungsi}: Menentukan nama pustaka (\textit{library crate}).
+	\item \textbf{Efek}:
+	\begin{itemize}
+		\item Nama ini digunakan saat pustaka dibangun dan dirujuk oleh proyek atau aplikasi lain.
+		\item Menentukan nama berkas keluaran. Sebagai contoh:
+		\begin{itemize}
+			\item Pada Linux/macOS: \texttt{libsolana\_rust\_django.a} atau \texttt{libsolana\_rust\_django.so}.
+			\item Pada Windows: \texttt{solana\_rust\_django.dll}.
+		\end{itemize}
+	\end{itemize}
+\end{itemize}
+
+\paragraph{2. \texttt{crate-type = ["cdylib", "lib"]}}
+\begin{itemize}
+	\item \textbf{Fungsi}: Menentukan jenis pustaka (\textit{crate}) yang akan dihasilkan oleh Cargo.
+	\item \textbf{Efek}:
+	\begin{itemize}
+		\item \texttt{cdylib} (C Dynamic Library):
+		\begin{itemize}
+			\item Menghasilkan pustaka dinamis yang dapat digunakan oleh aplikasi dalam bahasa lain, seperti C, Python, atau JavaScript.
+			\item Digunakan untuk interoperabilitas dengan ekosistem non-Rust melalui FFI (\textit{Foreign Function Interface}).
+		\end{itemize}
+		\item \texttt{lib} (Rust Library):
+		\begin{itemize}
+			\item Menghasilkan pustaka standar Rust yang dapat digunakan sebagai dependensi dalam proyek Rust lainnya.
+		\end{itemize}
+	\end{itemize}
+\end{itemize}
+
+\section{Struktur Direktori dan File Library}
+File utama dalam direktori \texttt{src} adalah \texttt{lib.rs}. Untuk keperluan bagian ini, semua logika program akan ditulis dalam file ini. Berikut adalah program Solana \textit{Hello World}:
+
+\begin{lstlisting}[language=Rust]
+	// lib.rs
+	
+	use solana_program::{
+		account_info::AccountInfo,
+		entrypoint,
+		entrypoint::ProgramResult,
+		msg,
+		pubkey::Pubkey,
+	};
+	
+	entrypoint!(process_instruction);
+	
+	pub fn process_instruction(
+	program_id: &Pubkey,
+	accounts: &[AccountInfo],
+	instruction_data: &[u8]
+	) -> ProgramResult {
+		msg!("Hello, world!");
+		Ok(())
+	}
+\end{lstlisting}
+
+\subsection{Penjelasan Kode Program}
+\begin{itemize}
+	\item \texttt{use solana\_program::{...};}: Mengimpor komponen penting dari \texttt{crate} Solana seperti \texttt{AccountInfo}, \texttt{ProgramResult}, dan lainnya.
+	\item \texttt{entrypoint!(process\_instruction);}: Mendeklarasikan \textit{entry point} program. Solana akan memulai eksekusi dari sini.
+	\item \texttt{process\_instruction}: Fungsi utama yang akan dipanggil oleh runtime Solana. Fungsi ini menerima tiga argumen:
+	\begin{enumerate}
+		\item \texttt{program\_id}: Referensi ke \texttt{Pubkey} yang menunjukkan alamat akun tempat program disimpan.
+		\item \texttt{accounts}: \textit{Slice} berisi objek \texttt{AccountInfo} yang mewakili akun-akun yang dibaca atau ditulis selama eksekusi instruksi.
+		\item \texttt{instruction\_data}: \textit{Byte array} yang berisi data untuk instruksi.
+	\end{enumerate}
+	\item \texttt{msg!(\"Hello, world!\");}: Mencetak pesan \textit{Hello World} ke log runtime Solana.
+	\item \texttt{Ok(())}: Mengembalikan hasil sukses untuk menunjukkan bahwa program selesai dieksekusi tanpa kesalahan.
+\end{itemize}
+
+\section{Membangun dan Menjalankan Program}
+
+Membangun aplikasi Solana dalam bahasa Rust dapat menggunakan pustaka \texttt{solana-program}. Perlu diperhatikan bahwa pustaka solana-program yang digunakan kompatibel dengan \texttt{rustc} yang datang bersama dengan \texttt{Solana Cli} yang terinstall. Misalnya, jika menggunakan \texttt{solana-cli 2.0.20} yang disertai dengan \texttt{rustc 1.75}, maka gunakan \texttt{solana-program@1.18.17}  karena versi \texttt{solana-program@1.20.0}, atau yang lebih baru hanya bekerja dengan \texttt{rustc 1.79} atau lebih tinggi. 
+
+Error yang paling sering muncul pada saat membangun (\texttt{build}) adalah:
+ \begin{lstlisting}[language=bash]
+error: failed to parse lock file at: ../Cargo.lock
+Caused by:
+lock file version 4 requires `-Znext-lockfile-bump`
+\end{lstlisting}
+
+Ini disebabkan oleh penggunaan versi Rust terinstall (bukan yang dipaket bersamaan dengan Solana Cli) adalah versi \texttt{rustc 1.80} ke atas yang menggunakan lock file versi 4 yang membutuhkan \texttt{-Znext-lockfile-bump}. Untuk menghindari error tersebut, versi \texttt{rustc 1.79} dapat digunakan karena merupakan versi terbaru \texttt{rustc} yang menggunakan \texttt{lock file} versi 3.
+
+Untuk mengeset lingkungan pengembangan yang memenuhi kompatibilitas tersebut, jalankan perintah-perintah berikut.
+
+\begin{lstlisting}[language=bash]
+	cd solana_rust_django
+	rustup show
+	rustup install 1.79-x86_64-unknown-linux-gnu
+	rustup default 1.79-x86_64-unknown-linux-gnu
+	rustup override set 1.79-x86_64-unknown-linux-gnu
+	rm -rf target Cargo.lock ~/.cache/solana
+	cargo clean
+\end{lstlisting}
+
+\begin{itemize}
+	\item Masuk ke direktori proyek dengan perintah \texttt{cd solana\_rust\_django}. Langkah ini memastikan Anda berada di lokasi proyek yang tepat sebelum menjalankan perintah berikutnya.
+	
+	\item Gunakan \texttt{rustup show} untuk menampilkan informasi tentang versi \texttt{rustc} yang sedang aktif, termasuk alat dan komponen yang terpasang. Perintah ini berguna untuk memverifikasi bahwa lingkungan pengembangan sesuai dengan kebutuhan proyek.
+	
+	\item Jalankan perintah \texttt{rustup install 1.79-x86\_64-unknown-linux-gnu} untuk mengunduh dan menginstal versi \texttt{rustc} 1.79 agar menggunakan \texttt{lock file} versi 3. Versi ini disesuaikan untuk sistem operasi Linux pada arsitektur \texttt{x86\_64}.
+	
+	\item Tetapkan versi \texttt{rustc} 1.79 sebagai default secara global dengan perintah \texttt{rustup default 1.79-x86\_64-unknown-linux-gnu}. Hal ini memastikan bahwa proyek lain tanpa pengaturan khusus juga menggunakan versi ini.
+	
+	\item Untuk menetapkan versi \texttt{rustc} 1.79 hanya di dalam direktori proyek \texttt{solana\_rust\_django}, gunakan perintah \texttt{rustup override set 1.79-x86\_64-unknown-linux-gnu}. Ini memberikan fleksibilitas jika proyek lain memerlukan versi \texttt{rustc} yang berbeda.
+	
+	\item Bersihkan berkas-berkas yang mungkin menyebabkan konflik atau masalah kompatibilitas dengan perintah \texttt{rm -rf target Cargo.lock \textasciitilde/.cache/solana}. Ini akan menghapus direktori build \texttt{target}, berkas \texttt{Cargo.lock}, dan cache pustaka Solana.
+	
+	\item Gunakan \texttt{cargo clean} untuk membersihkan semua artefak build yang tersimpan di dalam direktori \texttt{target}. Langkah ini memastikan bahwa proses build berikutnya dimulai dari awal tanpa ada sisa berkas dari build sebelumnya.
+\end{itemize}
+
+
+Selanjutnya, tambahkan \texttt{crate} \texttt{solana-program@1.18.17} ke dalam proyek menggunakan perintah agar kompatibel dengan versi \texttt{rustc 1.75} yang sepaket dengan \texttt{Solana Cli 2.0.20}:
+
+\begin{lstlisting}[language=bash]
+	cargo add solana-program@1.18.17
+\end{lstlisting}
+
+Program \texttt{rustc 1.75} yang sepaket dengan \texttt{Solana Cli 2.0.20} digunakan oleh perintah \texttt{cargo build-bpf} untuk membangun program menjadi file \texttt{.so} yang dapat dijalankan:
+
+\begin{lstlisting}[language=bash]
+	cargo build-bpf
+\end{lstlisting}
+
+File hasil build akan berada di direktori \texttt{target/deploy}. Berikutnya, gunakan perintah \texttt{solana program deploy} untuk mendistribusikan program ke \textit{local cluster}:
+
+\begin{lstlisting}[language=bash]
+	solana program deploy ./target/deploy/solana_rust_django.so
+\end{lstlisting}
+
+\section{Memeriksa Status Program}
+Setelah program terdeploy, gunakan perintah berikut untuk melihat daftar program yang berjalan:
+
+\begin{lstlisting}[language=bash]
+	solana program show --programs
+\end{lstlisting}
+
+Perintah ini akan menampilkan informasi apakah program dapat dieksekusi. Untuk melihat detail program, gunakan perintah:
+
+\begin{lstlisting}[language=bash]
+	solana account $program_id
+	solana program show $program_id
+\end{lstlisting}
+
+\section{Memeriksa Saldo Setelah Deployment}
+Program deployment menggunakan token Solana dari dompet default (Alice). Periksa saldo dompet dengan perintah:
+
+\begin{lstlisting}[language=bash]
+	solana balance
+\end{lstlisting}
+
+Saldo akan berkurang setelah program dideploy. Periksa log runtime untuk melihat pesan \textit{Hello World} saat program dieksekusi.

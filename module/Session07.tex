@@ -1,0 +1,80 @@
+\chapter{Membuat Python Client untuk Berinteraksi dengan Program Solana}
+
+Bab ini membahas cara menulis Python client yang mengirimkan transaksi ke program yang telah dideploy pada \textit{local Solana cluster}. Interaksi dilakukan melalui JSON RPC requests menggunakan modul Python bernama \texttt{solathon}.
+
+\section{Persiapan dan Logging Transaksi}
+Sebelum menulis kode Python, buka \textit{log transaksi cluster} pada terminal terpisah dengan perintah berikut:
+
+\begin{lstlisting}[language=bash]
+	solana logs
+\end{lstlisting}
+
+Perintah ini membuka \textit{log} cluster, memungkinkan pengguna untuk melihat transaksi yang dilakukan di Solana cluster secara langsung. Pesan \textit{Hello World} akan dicetak jika program berhasil di-invoke. Pastikan \textit{local cluster} tetap berjalan pada jendela terminal lain agar proses ini dapat berjalan dengan lancar.
+
+\section{Menulis Python Client}
+Gunakan langkah-langkah berikut untuk membuat Python client:
+
+\subsection{Instalasi Modul Solana Python}
+Pastikan modul \texttt{solathon} telah terinstal. Modul ini menyediakan alat untuk mengirimkan transaksi dan berinteraksi dengan Solana cluster. Jika belum terinstal, gunakan perintah berikut:
+
+\begin{lstlisting}[language=bash]
+	pip install solathon
+\end{lstlisting}
+
+\subsection{Kode Python Client}
+Berikut adalah kode Python client untuk mengirimkan transaksi ke program Solana:
+
+\begin{lstlisting}[language=Python]
+	## hello_world.py
+	
+	from solathon import Client, PublicKey, Keypair, Transaction
+	from solathon.core.instructions import AccountMeta, Instruction
+	
+	# Inisialisasi client ke alamat local cluster
+	client = Client('http://localhost:8899', local=True)
+	solana_program_id = 'your program ID eg. 6aoQLhkzjqr4EPiaQJU2wdXx1J6E5qTLkWkqkFyaNiLo'
+	
+	# Membuat kunci publik dan private Bob
+	bobs_public_k_string = "bob's public key"
+	bobs_private_k_list = [190, 52, 125]  # Contoh daftar integer dari JSON file Bob
+	
+	bobs_public_k = PublicKey(bobs_public_k_string)
+	bobs_meta_acc = AccountMeta(bobs_public_k, True, True)
+	
+	bobs_private_k = Keypair.from_private_key(bobs_private_k_list)
+	
+	# Menyiapkan instruksi
+	instruction = Instruction(program_id=solana_program_id, keys=[bobs_meta_acc], data=bytes(0))
+	
+	# Membuat transaksi dengan instruksi
+	transaction = Transaction(instructions=[instruction], signers=[bobs_private_k])
+	
+	# Mengirimkan transaksi ke cluster lokal
+	result = client.send_transaction(transaction)
+	print(result)
+\end{lstlisting}
+
+\subsection{Penjelasan Kode}
+\begin{itemize}
+	\item \texttt{Client}: Menginisialisasi koneksi ke \textit{local cluster}. Alamat default adalah \texttt{http://localhost:8899}, digunakan untuk menjalankan transaksi di cluster lokal.
+	\item \texttt{PublicKey}: Membuat objek kunci publik yang mewakili identitas akun di Solana. Dalam kode, kunci publik Bob dibuat menggunakan string.
+	\item \texttt{AccountMeta}: Menyediakan informasi meta untuk akun yang digunakan dalam instruksi. Atribut \texttt{is\_signer=True} menunjukkan bahwa akun ini akan menandatangani transaksi, sedangkan \texttt{is\_writable=True} menunjukkan bahwa data akun dapat diubah.
+	\item \texttt{Keypair}: Membuat pasangan kunci menggunakan kunci privat Bob yang diambil dari file JSON. Kunci ini digunakan untuk menandatangani transaksi.
+	\item \texttt{Instruction}: Instruksi yang diberikan ke program Solana. \texttt{program\_id} adalah ID program yang akan di-invoke, \texttt{keys} adalah daftar akun yang digunakan, dan \texttt{data} adalah data tambahan yang dikirimkan (kosong dalam contoh ini).
+	\item \texttt{Transaction}: Menggabungkan instruksi ke dalam satu transaksi. Daftar \texttt{signers} berisi akun yang bertanggung jawab untuk menandatangani transaksi.
+	\item \texttt{send\_transaction}: Mengirimkan transaksi ke cluster lokal dan mengembalikan hasil, termasuk tanda tangan transaksi.
+\end{itemize}
+
+\subsection{Langkah Eksekusi dan Hasil}
+\begin{enumerate}
+	\item Pastikan \textit{local cluster} dan \textit{log transaksi} berjalan pada terminal terpisah.
+	\item Jalankan kode Python untuk mengirimkan transaksi.
+	\item Periksa hasil pada terminal log. Pesan \texttt{Hello World} akan dicetak jika transaksi berhasil di-invoke.
+	\item Tanda tangan transaksi akan dicetak di terminal tempat Python client dijalankan.
+\end{enumerate}
+
+\section{Melihat Hasil di Log Terminal}
+Setelah transaksi berhasil dikirim, terminal log akan menampilkan tanda tangan transaksi dan pesan \textit{Hello World} dari program. Hal ini menunjukkan bahwa program telah berhasil di-invoke. Pesan ini berasal dari program Solana yang mencetak log saat dijalankan.
+
+\section{Langkah Berikutnya}
+Pada bagian berikutnya, program yang lebih kompleks akan ditulis untuk menyimpan data ke dalam akun PDA (\textit{Program Derived Address}). Penambahan fitur ini memungkinkan pengelolaan data di blockchain secara terstruktur.

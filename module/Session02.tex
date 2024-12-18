@@ -1,0 +1,104 @@
+\chapter{Konsep Penting dalam Web3}
+
+Beberapa konsep penting dalam Web3 mencakup penggunaan pasangan kunci kriptografi, dompet, kontrak pintar, akun pada jaringan Solana, dan mekanisme konsensus. Berikut adalah penjelasan setiap konsep beserta contohnya.
+
+\section{Pasangan Kunci Kriptografi}
+
+Pasangan kunci kriptografi terdiri dari dua komponen, yaitu kunci publik dan kunci privat. Kunci publik dihasilkan dari kunci privat dan merepresentasikan alamat pada blockchain. Kunci privat bersifat rahasia dan digunakan untuk tujuan verifikasi, seperti menandatangani transaksi. Saat pasangan kunci dihasilkan menggunakan Solana CLI, dompet akan secara otomatis dibuat. Dompet ini memungkinkan pengelolaan kunci kriptografi, pengiriman dan penerimaan aset digital, serta interaksi dengan kontrak pintar.
+
+\textbf{Contoh:}
+\begin{enumerate}
+	\item Menggunakan \texttt{Solana CLI} untuk menghasilkan pasangan kunci:
+	\begin{lstlisting}[language=bash]
+		solana-keygen new --outfile my-wallet.json
+	\end{lstlisting}
+	Menghasilkan file yang berisi kunci privat dan alamat blockchain terkait.
+	\item Menandatangani transaksi dengan kunci privat untuk transfer token.
+\end{enumerate}
+
+\section{Dompet Web3}
+
+Dompet Web3 berbeda dari dompet digital lainnya karena bersifat terdesentralisasi. Tidak diperlukan berbagi informasi pribadi dengan entitas lain untuk melakukan transaksi. Dompet ini memberikan kendali penuh kepada pengguna untuk melakukan transaksi secara peer-to-peer dengan aman. Terdapat dua jenis dompet Web3:
+\begin{itemize}
+	\item \textbf{Non-Kustodian}: Kendali penuh atas dompet berada pada pengguna.
+	\item \textbf{Kustodian}: Pengelolaan dompet dilakukan oleh pihak ketiga, seperti bursa.
+\end{itemize}
+
+\textbf{Contoh:}
+\begin{enumerate}
+	\item Dompet non-kustodian seperti \texttt{Phantom} yang digunakan untuk mengelola aset Solana.
+	\item Dompet kustodian yang disediakan oleh bursa seperti Binance.
+\end{enumerate}
+
+\section{Kontrak Pintar dan Program di Solana}
+
+Kontrak pintar adalah kontrak yang dieksekusi sendiri dengan logika perjanjian tertulis dalam kode. Kontrak ini bersifat terdesentralisasi, tidak dapat diubah, dan tidak dikontrol oleh satu entitas pun. Di Solana, kontrak pintar disebut sebagai program. Program ini dijalankan oleh klien, seperti aplikasi web, atau dapat dipanggil secara manual. 
+
+Terdapat dua jenis akun pada jaringan Solana:
+\begin{enumerate}
+	\item Akun eksekusi (\textit{executable accounts}) yang menyimpan program Solana.
+	\item Akun data (\textit{non-executable accounts}) yang menyimpan data yang dikelola oleh program.
+\end{enumerate}
+
+\textbf{Contoh:}
+\begin{enumerate}
+	\item Program sederhana \texttt{Hello World} yang mencetak pesan ke log.
+	\item Program kompleks seperti platform keuangan terdesentralisasi (DeFi).
+\end{enumerate}
+
+\section{Kluster Solana}
+
+Solana memiliki beberapa kluster dengan tujuan yang berbeda:
+\begin{itemize}
+	\item \textbf{DevNet}: Area pengembangan untuk pengembang. Token yang digunakan tidak nyata.
+	\item \textbf{TestNet}: Digunakan untuk pengujian kode baru oleh kontributor inti Solana. Token yang digunakan juga tidak nyata.
+	\item \textbf{MainNet Beta}: Kluster Solana yang aktif di mana token bersifat nyata.
+\end{itemize}
+
+\textbf{Contoh:}
+\begin{enumerate}
+	\item Mengembangkan dan menguji program di \textbf{DevNet} sebelum memindahkannya ke \textbf{MainNet Beta}.
+	\item Menggunakan token tidak nyata pada \textbf{TestNet} untuk pengujian transaksi.
+\end{enumerate}
+
+\section{JSON RPC}
+
+JSON RPC adalah protokol yang memungkinkan pemanggilan metode pada server oleh klien menggunakan pesan dalam format JSON. Protokol ini digunakan untuk berinteraksi dengan blockchain Solana, seperti mengirimkan transaksi atau mengambil informasi.
+
+\textbf{Contoh:}
+\begin{enumerate}
+	\item Mengambil saldo akun dengan JSON RPC:
+	\begin{lstlisting}[language=json]
+		{
+			"jsonrpc": "2.0",
+			"id": 1,
+			"method": "getBalance",
+			"params": ["YourPublicKey"]
+		}
+	\end{lstlisting}
+	\item Mengirimkan transaksi token dengan endpoint publik.
+\end{enumerate}
+
+\section{Mekanisme Konsensus Proof of History}
+
+Proof of History adalah mekanisme konsensus yang digunakan oleh Solana, memungkinkan throughput tinggi dan skalabilitas. Mekanisme ini menetapkan urutan kronologis kejadian tanpa memerlukan semua node mencapai konsensus untuk setiap transaksi.
+
+\textbf{Contoh:}
+\begin{enumerate}
+	\item Urutan transaksi di jaringan Solana yang tercatat berdasarkan waktu.
+	\item Optimasi throughput jaringan untuk menangani ribuan transaksi per detik.
+\end{enumerate}
+
+\section{Biaya Transaksi dan Penyimpanan}
+
+Solana mengenakan biaya transaksi (dikenal sebagai gas fees) dan biaya sewa untuk penyimpanan data dan akun. Biaya transaksi ditentukan berdasarkan:
+\begin{itemize}
+	\item Jumlah tanda tangan yang diperlukan untuk transaksi.
+	\item Sumber daya komputasi yang digunakan selama transaksi.
+\end{itemize}
+
+\textbf{Contoh:}
+\begin{enumerate}
+	\item Transaksi sederhana dengan satu tanda tangan dikenakan biaya rendah.
+	\item Transaksi kompleks dengan banyak tanda tangan memiliki biaya lebih tinggi.
+\end{enumerate}

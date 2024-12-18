@@ -1,0 +1,49 @@
+\chapter{Menjalankan dan Menguji Program Solana Secara Lokal}
+
+Untuk menjalankan dan menguji program Solana secara lokal, diperlukan runtime Solana yang dapat dijalankan menggunakan perintah \texttt{test-validator} dari Solana CLI. Perintah ini merupakan \textit{binary} yang memulai kluster Solana dengan satu node lengkap pada workstation. Setelah menginstal Solana CLI, konfigurasi dapat dilakukan untuk menghubungkan alat CLI dengan kluster lokal. Berikut langkah-langkah lengkapnya.
+
+\section{Menjalankan Kluster Lokal}
+
+Perintah \texttt{solana-test-validator} digunakan untuk memulai kluster Solana lokal. Perintah ini akan menjalankan node validator pada workstation dengan semua fitur lengkap yang diperlukan untuk pengujian. Contoh perintahnya adalah sebagai berikut:
+\begin{lstlisting}[language=bash, caption={Menjalankan Kluster Lokal}]
+	## Memulai kluster lokal
+	solana-test-validator
+\end{lstlisting}
+
+Node validator ini memulai kluster dengan blok awal yang dikenal sebagai \texttt{Genesis hash}, yaitu blok pertama dalam blockchain Solana.
+
+\section{Memverifikasi Konfigurasi CLI}
+
+Setelah menjalankan validator, konfigurasi alat CLI perlu diverifikasi untuk memastikan bahwa alat CLI terhubung dengan benar ke kluster lokal. Perintah berikut digunakan untuk memverifikasi konfigurasi dengan mencocokkan \texttt{Genesis hash} dari kluster lokal:
+\begin{lstlisting}[language=bash, caption={Memverifikasi Konfigurasi CLI}]
+	## Memverifikasi Genesis hash
+	solana genesis-hash
+\end{lstlisting}
+
+Jika konfigurasi berhasil, \texttt{Genesis hash} yang ditampilkan oleh validator akan sesuai dengan keluaran perintah \texttt{solana genesis-hash}.
+
+\section{Mengonfigurasi CLI untuk Berinteraksi dengan Kluster Lokal}
+
+Untuk memastikan alat CLI terhubung ke kluster lokal, konfigurasi URL kluster perlu diatur. Perintah berikut digunakan untuk mengatur URL localhost untuk kluster lokal:
+\begin{lstlisting}[language=bash, caption={Mengonfigurasi Alat CLI}]
+	## Mengonfigurasi CLI untuk localhost
+	solana config set --url http://127.0.0.1:8899
+\end{lstlisting}
+
+Setelah konfigurasi, status konfigurasi dapat dilihat menggunakan perintah berikut:
+\begin{lstlisting}[language=bash, caption={Melihat Konfigurasi Lokal}]
+	## Melihat konfigurasi lokal
+	solana config get
+\end{lstlisting}
+
+Konfigurasi ini memastikan bahwa alat CLI dapat berkomunikasi dengan node validator yang dijalankan pada workstation lokal.
+
+\section{Penjelasan Contoh dan Output}
+
+\begin{itemize}
+	\item Menjalankan perintah \texttt{solana-test-validator} akan memulai node validator lokal, dan terminal akan menampilkan log proses kluster yang dimulai.
+	\item Perintah \texttt{solana genesis-hash} akan mencetak hash dari blok awal kluster lokal, yang harus sesuai dengan hash yang tercantum di log validator.
+	\item Setelah menjalankan \texttt{solana config set --url http://127.0.0.1:8899}, perintah \texttt{solana config get} akan menampilkan konfigurasi yang telah diatur, termasuk URL kluster lokal.
+\end{itemize}
+
+Langkah-langkah ini memastikan lingkungan pengembangan lokal siap untuk mengembangkan dan menguji program Solana secara efisien. Kunci privat dan jalur pasangan kunci akan dibahas lebih lanjut pada sesi berikutnya.
